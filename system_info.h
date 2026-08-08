@@ -1,7 +1,7 @@
 #ifndef SYSTEM_INFO_H
 #define SYSTEM_INFO_H
 
-struct SystemInfo{
+typedef struct{
 	char hostname[256]
 	char kernel[128];
 	char os_name[128];
@@ -15,9 +15,9 @@ struct SystemInfo{
 	unsigned long free_ram
 	
 	unsigned long uptime;
-};
+}SystemInfo;
 
 int get_system_info(SystemInfo *info);
 void print_system_info(const SystemInfo *info);
 
-
+#endif
