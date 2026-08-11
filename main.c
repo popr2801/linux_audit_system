@@ -6,20 +6,23 @@
 #include "system_info.h"
 #include "daemon.h"
 
+
+
+
 int main(){
 
-	FILE *log = fopen("/tmp/auditor.log","a");
-	if(log == NULL){perror("fopen");return 1;}
-	if(daemonize() == -1){fclose(log);return 1;}
-	fprintf(log, "Passed daemonize()\n");
+	if(daemonize() == -1){return -1;}
+	FILE *log, *pid_file;
+	if(load_files(&log,&pid_file) < 0){perror("load_files");return -1;}
+	SystemInfo info;
+	
 	while(1){
-		sleep(5);
-		SystemInfo info;
 		get_system_info(&info);
 		print_system_info(&info,log);
+		sleep(3600);
 	}
 
 	fclose(log);
-
+	unlink("/tmp/daemon.pid");
 	return 0;
 }

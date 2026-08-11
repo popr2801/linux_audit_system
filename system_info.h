@@ -13,12 +13,14 @@ typedef struct{
 	char cpu_model[256];
 	unsigned int cpu_cores;
 	
-	unsigned total_ram;
-	unsigned long free_ram;
-	
+	unsigned long total_ram;
+	unsigned long available_ram;
+	double memory_usage;
 	unsigned long uptime;
 }SystemInfo;
 
+
+double get_memory_usage(unsigned long *total_ram,unsigned long *available_ram);
 int get_system_info(SystemInfo *info);
 void print_system_info(SystemInfo *info,FILE *output);
 
