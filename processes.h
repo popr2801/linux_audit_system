@@ -41,7 +41,7 @@ int print_process(Process *process,FILE *log);
 int detect_new_processes(
 	const Process previous[], // processes for previous scan
 	size_t previous_count,
-	const Process current[] // processes from this scan
+	const Process current[], // processes from this scan
 	size_t current_count,
 	Process new_processes[], // processes that are in current[] but not in previous[]
 	size_t max_new_processes);
