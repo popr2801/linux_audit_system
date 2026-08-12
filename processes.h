@@ -1,10 +1,15 @@
 #ifndef PROCESSES_H
 #define PROCESSES_H
+#include <sys/types.h>
+#include <limits.h>
+#include <stdio.h>
+
 
 enum State{
 	RUNNING,
 	SLEEP,
-	UNINTERRUPTABLE_SLEEP,
+	UNINTERRUPTIBLE_SLEEP,
+	IDLE,
 	ZOMBIE,
 	STOPPED,
 	UNKNOWN
@@ -12,20 +17,24 @@ enum State{
 
 
 typedef struct{
-	int pid;
-	int gid;
-	int ppid;
-	char *proc_name;
-	char *exe_path;
-	char *cmdline;
+	pid_t pid;
+	gid_t gid;
+	pid_t ppid;
+	uid_t uid;
+	char proc_name[256];
+	char exe_path[PATH_MAX];
+	char cmdline[4096];
 	enum State state;
 }Process;
 
 const char *convert_state_enum(enum State state);
 
-int load_processes(Process processes[],int max_processes);
+int load_processes(Process processes[],size_t max_processes);
 
-Process *load_process_by_pid(int pid);
+int load_process_by_pid(pid_t pid, Process *process);
+enum State parse_state(char state);
+
+int print_process(Process *process,FILE *log);
 
 int detect_new_processes(
 	const Process process[],

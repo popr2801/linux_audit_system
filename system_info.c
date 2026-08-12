@@ -5,6 +5,9 @@
 #include <time.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <pwd.h>
+#define COLOR_GREEN   "\033[1;92m"
+#define COLOR_RESET "\033[0m"
 
 
 
@@ -30,9 +33,9 @@ double get_memory_usage(unsigned long *total_ram,unsigned long *available_ram){
 	return memory_usage;
 }
 
-
 int get_system_info(SystemInfo *info){
 	struct utsname name;
+
 	if(uname(&name) == -1){perror("uname");return -1;}
 
 	strcpy(info->os_name,name.sysname);
@@ -44,11 +47,13 @@ int get_system_info(SystemInfo *info){
 	
 	return 0;
 }
+
+
 void print_system_info(SystemInfo *info, FILE *log){
 
 	time_t now = time(NULL);
 	struct tm *tm_info = localtime(&now);
-	fprintf(log,"Last log ~ [%04d-%02d-%02d %02d:%02d:%02d]\n",
+	fprintf(log,COLOR_GREEN "Last log ~ [%04d-%02d-%02d %02d:%02d:%02d]\n" COLOR_RESET,
 		tm_info->tm_year + 1900,
         tm_info->tm_mon + 1,
         tm_info->tm_mday,
@@ -60,8 +65,8 @@ void print_system_info(SystemInfo *info, FILE *log){
 	fprintf(log,"Kernel: %s\n",info->kernel);
 	fprintf(log,"OS Name: %s\n",info->os_name);
 	fprintf(log,"Architecture: %s\n",info->architecture);
-	fprintf(log,"Current User: %s\n",info->current_user);
 	fprintf(log,"Memory Usage: %.2f%%\n",info->memory_usage);
+	fprintf(log,"-----------------------------------------\n");
 
 	fflush(log);
 }

@@ -8,7 +8,6 @@ typedef struct{
 	char kernel[256];
 	char os_name[128];
 	char architecture[64];
-	char current_user[64];
 
 	char cpu_model[256];
 	unsigned int cpu_cores;
@@ -22,6 +21,7 @@ typedef struct{
 
 double get_memory_usage(unsigned long *total_ram,unsigned long *available_ram);
 int get_system_info(SystemInfo *info);
+
 void print_system_info(SystemInfo *info,FILE *output);
 
 #endif
