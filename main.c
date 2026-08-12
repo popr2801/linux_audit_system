@@ -16,15 +16,17 @@ int main(){
 	FILE *log, *pid_file;
 	if(load_files(&log,&pid_file) < 0){perror("load_files");return -1;}
 	SystemInfo info;
-	Process process;
+	size_t max_processes = 256;
+	Process processes[max_processes];
 	
+	// this happens every hour
+
 	while(1){
 		get_system_info(&info);
 		print_system_info(&info,log);
-		load_process_by_pid(1,&process);
-		print_process(&process,log);
+		int count = load_processes(processes,max_processes);
 		fflush(log);
-		sleep(3600);
+		sleep(3600); // probably change the scan time to 10 seconds 
 	}
 
 	fclose(log);

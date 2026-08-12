@@ -5,6 +5,23 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <pwd.h>
+#include <dirent.h>
+#include <ctype.h>
+
+int is_pid_directory(const char *name)
+{
+    if (*name == '\0') {
+        return 0;
+    }
+    for (const char *c = name; *c != '\0'; c++) {
+        if (!isdigit((unsigned char)*c)) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
 
 enum State parse_state(char state){
     switch (state) {
@@ -94,7 +111,24 @@ int load_process_by_pid(pid_t pid, Process *process){
 }
 
 int load_processes(Process process[],size_t max_processes){
-	
+	size_t index = 0;
+	DIR *dir = opendir("/proc");
+	if(dir == NULL){return -1;}
+
+	struct dirent *entry;
+
+	while((entry = readdir(dir)) != NULL){
+		if(!is_pid_directory(entry->d_name)){continue;}
+		if(index >= max_processes){break;}
+
+		if(load_process_by_pid(atoi(entry->d_name),&process[index])==0){
+			index++;
+		}
+
+
+	}
+	closedir(dir);
+	return (int)index;
 }
 
 int print_process(Process *process, FILE *log){
@@ -107,6 +141,7 @@ int print_process(Process *process, FILE *log){
 	fprintf(log,"State: %s\n",convert_state_enum(process->state));
 	fprintf(log,"PPID: %d\n",process->ppid);
 	fprintf(log,"UID: %u (%s)\n",(unsigned)process->uid,pw ? pw->pw_name : "unknown");
+	fprintf(log,"GID: %d\n",process->gid);
 	fprintf(log,"-----------------------------\n");
 
 	return 0;
