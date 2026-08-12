@@ -1,9 +1,11 @@
 #ifndef PROCESSES_H
+
 #define PROCESSES_H
+
+
 #include <sys/types.h>
 #include <limits.h>
 #include <stdio.h>
-
 
 enum State{
 	RUNNING,
@@ -28,6 +30,8 @@ typedef struct{
 }Process;
 
 const char *convert_state_enum(enum State state);
+const char *get_timestamp();
+
 
 int is_pid_directory(const char *name);
 
@@ -38,13 +42,16 @@ enum State parse_state(char state);
 
 int print_process(Process *process,FILE *log);
 
+void new_process_detected(const Process *process, FILE *log);
+void terminated_process_detected(const Process *process, FILE *log);
+
+
 int detect_new_processes(
 	const Process previous[], // processes for previous scan
 	size_t previous_count,
 	const Process current[], // processes from this scan
 	size_t current_count,
-	Process new_processes[], // processes that are in current[] but not in previous[]
-	size_t max_new_processes);
+	FILE *log);
 // for the function above track each change and log into log_file, for example:
 // PROCESS EVENTS: [12:00:03] Process created : PID 1821, nginx, UID 0
 // [12:04:17] Process terminated : PID 1821, nginx, UID 0

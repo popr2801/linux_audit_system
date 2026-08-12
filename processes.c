@@ -7,6 +7,12 @@
 #include <pwd.h>
 #include <dirent.h>
 #include <ctype.h>
+#include <time.h>
+
+#define GREEN  "\033[92m"
+#define RED    "\033[91m"
+#define RESET  "\033[0m"
+
 
 int is_pid_directory(const char *name)
 {
@@ -22,6 +28,14 @@ int is_pid_directory(const char *name)
     return 1;
 }
 
+const char *get_timestamp(){
+	static char timestamp[64];
+	time_t now = time(NULL);
+	struct tm *tm_info = localtime(&now);
+
+	strftime(timestamp,sizeof(timestamp),"%Y-%m-%d %H:%M:%S", tm_info);
+	return timestamp;
+}
 
 enum State parse_state(char state){
     switch (state) {
@@ -119,7 +133,8 @@ int load_processes(Process process[],size_t max_processes){
 
 	while((entry = readdir(dir)) != NULL){
 		if(!is_pid_directory(entry->d_name)){continue;}
-		if(index >= max_processes){break;}
+		if(index >= max_processes){ fprintf(stderr, "Maximum process limit reached\n");
+    break;}
 
 		if(load_process_by_pid(atoi(entry->d_name),&process[index])==0){
 			index++;
@@ -145,4 +160,45 @@ int print_process(Process *process, FILE *log){
 	fprintf(log,"-----------------------------\n");
 
 	return 0;
+}
+
+void new_process_detected(const Process *process, FILE *log){
+	struct passwd *pw = getpwuid(process->uid);
+
+	fprintf(log,GREEN "[%s] Process %d(%s) started by %s (UID %u)\n" RESET,
+		get_timestamp(),
+		process->pid,
+		process->proc_name,
+		pw ? pw->pw_name : "unknown",
+		(unsigned)process->uid);
+}
+
+void terminated_process_detected(const Process *process,FILE *log){
+
+	fprintf(log, RED "[%s] Process %d(%s) terminated\n" RESET,
+		get_timestamp(),
+		process->pid,
+		process->proc_name);
+}
+
+int detect_new_processes(const Process previous[],size_t previous_count,const Process current[],size_t current_count,FILE *log){
+	if(previous == NULL || current == NULL){return -1;}
+	
+	for(int i = 0; i < current_count; i++){
+		int found = 0;
+		for(int j = 0; j < previous_count; j++){
+			if(current[i].pid == previous[j].pid){found = 1;break;}
+		}
+		if(!found){new_process_detected(&current[i],log);}
+	}
+	for(int i = 0; i < previous_count; i++){
+		int found = 0;
+		for(int j = 0; j < current_count; j++){
+			if(previous[i].pid == current[j].pid){found = 1;break;}
+		}
+		if(!found){terminated_process_detected(&previous[i],log);}
+	}
+
+	return 0;
+
 }
