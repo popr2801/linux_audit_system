@@ -14,8 +14,7 @@
 #define RESET  "\033[0m"
 
 
-int is_pid_directory(const char *name)
-{
+int is_pid_directory(const char *name){
     if (*name == '\0') {
         return 0;
     }

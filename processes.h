@@ -52,7 +52,7 @@ int detect_new_processes(
 	const Process current[], // processes from this scan
 	size_t current_count,
 	FILE *log);
-// for the function above track each change and log into log_file, for example:
+// for the function above I will track each change and log into log_file, for example:
 // PROCESS EVENTS: [12:00:03] Process created : PID 1821, nginx, UID 0
 // [12:04:17] Process terminated : PID 1821, nginx, UID 0
 
