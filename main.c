@@ -7,15 +7,15 @@
 #include "daemon.h"
 #include "users.h"
 #include "processes.h"
+#include "sessions.h"
 #include <string.h>
 
 #define MAX_PROCESSES 4096
 #define MAX_USERS 128
-
+#define MAX_SESSIONS 128
 
 
 int main(){
-
 	if(daemonize() == -1){return -1;}
 	FILE *log, *pid_file;
 	if(load_files(&log,&pid_file) < 0){perror("load_files");return -1;}
@@ -29,10 +29,12 @@ int main(){
 	get_system_info(&info);
 	print_system_info(&info,log);
 	UserStats stats; // for getting stats for one user at a time
+	static Session sessions[MAX_SESSIONS],result[128];
 
 	while(1){
 		size_t count = load_processes(current,MAX_PROCESSES);
-		
+		size_t session_count = load_sessions(sessions,MAX_SESSIONS);
+
 		if(count < 0){fprintf(log,"Failed to load processes\n");}
 		else{
 			size_t current_count = (size_t)count;
@@ -44,6 +46,8 @@ int main(){
 			previous_count = current_count;
 
 		}
+		size_t result_count = get_sessions_by_uid(sessions,session_count,0,result);
+		print_sessions(result,result_count,log);
 
 		fflush(log);
 		sleep(10);
