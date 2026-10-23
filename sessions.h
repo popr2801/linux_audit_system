@@ -2,6 +2,7 @@
 #define SESSIONS_H
 #include <time.h>
 #include <sys/types.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include "users.h"
 
