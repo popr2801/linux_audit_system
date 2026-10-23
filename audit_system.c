@@ -15,7 +15,6 @@ struct proc{
 
 
 };
-//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
 bool verify_dir(char *dir_name){
 	int i=0;
 	while(dir_name[i]){
